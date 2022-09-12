@@ -295,43 +295,44 @@ function initializeEditor(
   editor.update(
     () => {
       const root = $getRoot();
-      // if (root.isEmpty()) {
-      if (initialEditorState) {
-        switch (typeof initialEditorState) {
-          case 'string': {
-            const parsedEditorState =
-              editor.parseEditorState(initialEditorState);
-            editor.setEditorState(parsedEditorState, {tag: 'collaboration'});
-            break;
+      if (root.isEmpty()) {
+        if (initialEditorState) {
+          switch (typeof initialEditorState) {
+            case 'string': {
+              const parsedEditorState =
+                editor.parseEditorState(initialEditorState);
+              editor.setEditorState(parsedEditorState, {tag: 'collaboration'});
+              break;
+            }
+            case 'object': {
+              editor.setEditorState(initialEditorState, {tag: 'collaboration'});
+              break;
+            }
+            case 'function': {
+              editor.update(
+                () => {
+                  const root1 = $getRoot();
+                  if (root1.isEmpty()) {
+                    initialEditorState(editor);
+                  }
+                },
+                {tag: 'collaboration'},
+              );
+              break;
+            }
           }
-          case 'object': {
-            editor.setEditorState(initialEditorState, {tag: 'collaboration'});
-            break;
-          }
-          case 'function': {
-            editor.update(
-              () => {
-                const root1 = $getRoot();
-                if (root1.isEmpty()) {
-                  initialEditorState(editor);
-                }
-              },
-              {tag: 'collaboration'},
-            );
-            break;
-          }
-        }
-        // }
+        } else {
+          const paragraph = $createParagraphNode();
+          root.append(paragraph);
+          const activeElement = document.activeElement;
 
-        const paragraph = $createParagraphNode();
-        root.append(paragraph);
-        const activeElement = document.activeElement;
-
-        if (
-          $getSelection() !== null ||
-          (activeElement !== null && activeElement === editor.getRootElement())
-        ) {
-          paragraph.select();
+          if (
+            $getSelection() !== null ||
+            (activeElement !== null &&
+              activeElement === editor.getRootElement())
+          ) {
+            paragraph.select();
+          }
         }
       }
     },
