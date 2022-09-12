@@ -62,6 +62,12 @@ function useYjsCollaboration(
         editor.dispatchCommand(yjs_1.CONNECTED_COMMAND, status === 'connected');
       };
       var onSync = function (isSynced) {
+        console.log(
+          'onSync, ',
+          isSynced,
+          'init ',
+          'should boostrap: '.concat(shouldBootstrap),
+        );
         if (
           shouldBootstrap &&
           isSynced &&
@@ -70,6 +76,7 @@ function useYjsCollaboration(
           // root._xmlText._length === 0 &&
           isReloadingDoc.current === false
         ) {
+          console.log('Init state with initalState', initialEditorState);
           initializeEditor(editor, initialEditorState);
         }
         isReloadingDoc.current = false;
@@ -301,6 +308,8 @@ function initializeEditor(editor, initialEditorState) {
             paragraph.select();
           }
         }
+      } else {
+        console.log('root is not empty');
       }
     },
     {

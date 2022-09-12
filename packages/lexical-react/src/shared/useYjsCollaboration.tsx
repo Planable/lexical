@@ -83,6 +83,12 @@ export function useYjsCollaboration(
     };
 
     const onSync = (isSynced: boolean) => {
+      console.log(
+        'onSync, ',
+        isSynced,
+        'init ',
+        `should boostrap: ${shouldBootstrap}`,
+      );
       if (
         shouldBootstrap &&
         isSynced &&
@@ -91,6 +97,8 @@ export function useYjsCollaboration(
         // root._xmlText._length === 0 &&
         isReloadingDoc.current === false
       ) {
+        console.log('Init state with initalState', initialEditorState);
+
         initializeEditor(editor, initialEditorState);
       }
 
@@ -334,6 +342,8 @@ function initializeEditor(
             paragraph.select();
           }
         }
+      } else {
+        console.log('root is not empty');
       }
     },
     {
