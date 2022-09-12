@@ -13,6 +13,7 @@ import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {useEffect, useMemo} from 'react';
 import {WebsocketProvider} from 'y-websocket';
 
+import {InitialEditorStateType} from './LexicalComposer';
 import {
   useYjsCollaboration,
   useYjsFocusTracking,
@@ -24,6 +25,7 @@ export function CollaborationPlugin({
   providerFactory,
   shouldBootstrap,
   username,
+  initialEditorState,
 }: {
   id: string;
   providerFactory: (
@@ -33,6 +35,7 @@ export function CollaborationPlugin({
   ) => WebsocketProvider;
   shouldBootstrap: boolean;
   username?: string;
+  initialEditorState?: InitialEditorStateType;
 }): JSX.Element {
   const collabContext = useCollaborationContext(username);
 
@@ -65,6 +68,7 @@ export function CollaborationPlugin({
     name,
     color,
     shouldBootstrap,
+    initialEditorState,
   );
 
   collabContext.clientID = binding.clientID;
