@@ -352,9 +352,9 @@ export function parseEditorState(
     // Make the editorState immutable
     editorState._readOnly = true;
 
-    if (__DEV__) {
-      handleDEVOnlyPendingUpdateGuarantees(editorState);
-    }
+    // if (__DEV__) {
+    //   handleDEVOnlyPendingUpdateGuarantees(editorState);
+    // }
   } finally {
     editor._dirtyElements = previousDirtyElements;
     editor._dirtyLeaves = previousDirtyLeaves;
@@ -393,25 +393,25 @@ export function readEditorState<V>(
   }
 }
 
-function handleDEVOnlyPendingUpdateGuarantees(
-  pendingEditorState: EditorState,
-): void {
-  // Given we can't Object.freeze the nodeMap as it's a Map,
-  // we instead replace its set, clear and delete methods.
-  const nodeMap = pendingEditorState._nodeMap;
+// function handleDEVOnlyPendingUpdateGuarantees(
+//   pendingEditorState: EditorState,
+// ): void {
+//   // Given we can't Object.freeze the nodeMap as it's a Map,
+//   // we instead replace its set, clear and delete methods.
+//   const nodeMap = pendingEditorState._nodeMap;
 
-  nodeMap.set = () => {
-    throw new Error('Cannot call set() on a frozen Lexical node map');
-  };
+//   nodeMap.set = () => {
+//     throw new Error('Cannot call set() on a frozen Lexical node map');
+//   };
 
-  nodeMap.clear = () => {
-    throw new Error('Cannot call clear() on a frozen Lexical node map');
-  };
+//   nodeMap.clear = () => {
+//     throw new Error('Cannot call clear() on a frozen Lexical node map');
+//   };
 
-  nodeMap.delete = () => {
-    throw new Error('Cannot call delete() on a frozen Lexical node map');
-  };
-}
+//   nodeMap.delete = () => {
+//     throw new Error('Cannot call delete() on a frozen Lexical node map');
+//   };
+// }
 
 export function commitPendingUpdates(editor: LexicalEditor): void {
   const pendingEditorState = editor._pendingEditorState;
@@ -494,14 +494,14 @@ export function commitPendingUpdates(editor: LexicalEditor): void {
 
   if (!pendingEditorState._readOnly) {
     pendingEditorState._readOnly = true;
-    if (__DEV__) {
-      handleDEVOnlyPendingUpdateGuarantees(pendingEditorState);
-      if ($isRangeSelection(pendingSelection)) {
-        Object.freeze(pendingSelection.anchor);
-        Object.freeze(pendingSelection.focus);
-      }
-      Object.freeze(pendingSelection);
-    }
+    // if (__DEV__) {
+    //   handleDEVOnlyPendingUpdateGuarantees(pendingEditorState);
+    //   if ($isRangeSelection(pendingSelection)) {
+    //     Object.freeze(pendingSelection.anchor);
+    //     Object.freeze(pendingSelection.focus);
+    //   }
+    //   Object.freeze(pendingSelection);
+    // }
   }
 
   const dirtyLeaves = editor._dirtyLeaves;

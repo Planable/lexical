@@ -7,7 +7,7 @@
  */
 
 import type {Binding} from '@lexical/yjs';
-import type {LexicalEditor} from 'lexical';
+import type {EditorState, LexicalEditor} from 'lexical';
 import type {Doc, Transaction, YEvent} from 'yjs';
 
 import {mergeRegister} from '@lexical/utils';
@@ -37,6 +37,13 @@ import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {createPortal} from 'react-dom';
 import {WebsocketProvider} from 'y-websocket';
 
+// TODO Remove in 0.4
+export type InitialEditorStateType =
+  | null
+  | string
+  | EditorState
+  | ((editor: LexicalEditor) => void);
+
 export function useYjsCollaboration(
   editor: LexicalEditor,
   id: string,
@@ -45,6 +52,7 @@ export function useYjsCollaboration(
   name: string,
   color: string,
   shouldBootstrap: boolean,
+  initialEditorState?: InitialEditorStateType,
 ): [JSX.Element, Binding] {
   const isReloadingDoc = useRef(false);
   const [doc, setDoc] = useState(docMap.get(id));
@@ -75,14 +83,23 @@ export function useYjsCollaboration(
     };
 
     const onSync = (isSynced: boolean) => {
+      console.log(
+        'onSync, ',
+        isSynced,
+        'init ',
+        `should boostrap: ${shouldBootstrap}`,
+      );
       if (
         shouldBootstrap &&
         isSynced &&
-        root.isEmpty() &&
-        root._xmlText._length === 0 &&
+        // TODO: check if isEmpty and root have some elem
+        // root.isEmpty() &&
+        // root._xmlText._length === 0 &&
         isReloadingDoc.current === false
       ) {
-        initializeEditor(editor);
+        console.log('Init state with initalState', initialEditorState);
+
+        initializeEditor(editor, initialEditorState);
       }
 
       isReloadingDoc.current = false;
@@ -279,23 +296,54 @@ export function useYjsHistory(
   return clearHistory;
 }
 
-function initializeEditor(editor: LexicalEditor): void {
+function initializeEditor(
+  editor: LexicalEditor,
+  initialEditorState?: InitialEditorStateType,
+): void {
   editor.update(
     () => {
       const root = $getRoot();
-      const firstChild = root.getFirstChild();
+      if (root.isEmpty()) {
+        if (initialEditorState) {
+          switch (typeof initialEditorState) {
+            case 'string': {
+              const parsedEditorState =
+                editor.parseEditorState(initialEditorState);
+              editor.setEditorState(parsedEditorState, {tag: 'collaboration'});
+              break;
+            }
+            case 'object': {
+              editor.setEditorState(initialEditorState, {tag: 'collaboration'});
+              break;
+            }
+            case 'function': {
+              editor.update(
+                () => {
+                  const root1 = $getRoot();
+                  if (root1.isEmpty()) {
+                    initialEditorState(editor);
+                  }
+                },
+                {tag: 'collaboration'},
+              );
+              break;
+            }
+          }
+        } else {
+          const paragraph = $createParagraphNode();
+          root.append(paragraph);
+          const activeElement = document.activeElement;
 
-      if (firstChild === null) {
-        const paragraph = $createParagraphNode();
-        root.append(paragraph);
-        const activeElement = document.activeElement;
-
-        if (
-          $getSelection() !== null ||
-          (activeElement !== null && activeElement === editor.getRootElement())
-        ) {
-          paragraph.select();
+          if (
+            $getSelection() !== null ||
+            (activeElement !== null &&
+              activeElement === editor.getRootElement())
+          ) {
+            paragraph.select();
+          }
         }
+      } else {
+        console.log('root is not empty');
       }
     },
     {

@@ -240,7 +240,8 @@ function printRangeSelection(selection: RangeSelection): string {
 }
 
 function printObjectSelection(selection: NodeSelection): string {
-  return `: node\n  └ [${Array.from(selection._nodes).join(', ')}]`;
+  // _node can be null, add default
+  return `: node\n  └ [${Array.from(selection._nodes || []).join(', ')}]`;
 }
 
 function printGridSelection(selection: GridSelection): string {

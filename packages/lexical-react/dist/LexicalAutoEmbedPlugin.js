@@ -1,0 +1,11 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+'use strict';var e=require("@lexical/link"),m=require("@lexical/react/LexicalComposerContext"),q=require("@lexical/react/LexicalTypeaheadMenuPlugin"),t=require("@lexical/utils"),u=require("lexical"),B=require("react"),C=require("react-dom");let D=u.createCommand();class E extends q.TypeaheadOption{constructor(g,n){super(g);this.title=g;this.icon=n.icon;this.onSelect=n.onSelect.bind(this)}}exports.AutoEmbedOption=E;exports.INSERT_EMBED_COMMAND=D;
+exports.LexicalAutoEmbedPlugin=function({embedConfigs:g,onOpenEmbedModalForConfig:n,getMenuOptions:v,menuComponent:F}){let [c]=m.useLexicalComposerContext(),[f,w]=B.useState(null),[h,x]=B.useState(null),p=B.useCallback(()=>{w(null);x(null)},[]),y=B.useCallback(b=>{c.getEditorState().read(()=>{const a=u.$getNodeByKey(b);if(e.$isLinkNode(a)){const d=g.find(k=>k.parseUrl(a.__url));null!=d&&(x(d),w(a.getKey()))}})},[c,g]);B.useEffect(()=>{let b=(a,{updateTags:d,dirtyLeaves:k})=>{for(const [l,r]of a)"created"===
+r&&d.has("paste")&&1===k.size?y(l):l===f&&p()};return t.mergeRegister(...[e.LinkNode,e.AutoLinkNode].map(a=>c.registerMutationListener(a,(...d)=>b(...d))))},[y,c,g,f,p]);B.useEffect(()=>c.registerCommand(D,b=>{let a=g.find(({type:d})=>d===b);return a?(n(a),!0):!1},u.COMMAND_PRIORITY_EDITOR),[c,g,n]);let z=B.useCallback(()=>{if(null!=h&&null!=f){const b=c.getEditorState().read(()=>{const a=u.$getNodeByKey(f);return e.$isLinkNode(a)?a:null});if(e.$isLinkNode(b)){const a=h.parseUrl(b.__url);null!=a&&
+(c.update(()=>{h.insertNode(c,a)}),b.isAttached()&&c.update(()=>{b.remove()}))}}},[h,c,f]),A=B.useMemo(()=>null!=h&&null!=f?v(h,z,p):[],[h,z,v,f,p]),G=B.useCallback((b,a,d)=>{c.update(()=>{b.onSelect(a);d()})},[c]);return null!=f?B.createElement(q.LexicalNodeMenuPlugin,{nodeKey:f,onClose:p,onSelectOption:G,options:A,menuRenderFn:(b,{selectedIndex:a,selectOptionAndCleanUp:d,setHighlightedIndex:k})=>b&&null!=f?C.createPortal(B.createElement(F,{options:A,selectedItemIndex:a,onOptionClick:(l,r)=>{k(r);
+d(l)},onOptionMouseEnter:l=>{k(l)}}),b):null}):null};exports.URL_MATCHER=/((https?:\/\/(www\.)?)|(www\.))[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/

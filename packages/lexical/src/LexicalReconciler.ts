@@ -603,10 +603,10 @@ function reconcileNode(
     nextNode.__cachedText = editorTextContent;
   }
 
-  if (__DEV__) {
-    // Freeze the node in DEV to prevent accidental mutations
-    Object.freeze(nextNode);
-  }
+  // if (__DEV__) {
+  //   // Freeze the node in DEV to prevent accidental mutations
+  //   Object.freeze(nextNode);
+  // }
 
   return dom;
 }

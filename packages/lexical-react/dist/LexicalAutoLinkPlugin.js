@@ -1,0 +1,12 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+'use strict';var h=require("@lexical/link"),m=require("@lexical/react/LexicalComposerContext"),p=require("@lexical/utils"),v=require("lexical"),w=require("react");function x(a,c){for(let b=0;b<c.length;b++){let e=c[b](a);if(e)return e}return null}function y(a){a=a.getPreviousSibling();v.$isElementNode(a)&&(a=a.getLastDescendant());return null===a||v.$isLineBreakNode(a)||v.$isTextNode(a)&&a.getTextContent().endsWith(" ")}
+function A(a){a=a.getNextSibling();v.$isElementNode(a)&&(a=a.getFirstDescendant());return null===a||v.$isLineBreakNode(a)||v.$isTextNode(a)&&a.getTextContent().startsWith(" ")}
+function B(a,c,b){var e=a.getChildren();let d=e.length;for(let f=0;f<d;f++){let g=e[f];if(!v.$isTextNode(g)||!g.isSimpleText()){C(a);b(null,a.getURL());return}}e=a.getTextContent();c=x(e,c);null===c||c.text!==e?(C(a),b(null,a.getURL())):y(a)&&A(a)?(e=a.getURL(),null!==c&&e!==c.url&&(a.setURL(c.url),b(c.url,e))):(C(a),b(null,a.getURL()))}function C(a){let c=a.getChildren();var b=c.length;for(--b;0<=b;b--)a.insertAfter(c[b]);a.remove();return c.map(e=>e.getLatest())}
+function D(a,c,b){w.useEffect(()=>{if(!a.hasNodes([h.AutoLinkNode]))throw Error("Minified Lexical error #77; visit https://lexical.dev/docs/error?code=77 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.");let e=(d,f)=>{b&&b(d,f)};return p.mergeRegister(a.registerNodeTransform(v.TextNode,d=>{var f=d.getParentOrThrow();if(h.$isAutoLinkNode(f))B(f,c,e);else if(!h.$isLinkNode(f)){if(d.isSimpleText()){f=d.getTextContent();let E=f.length,u=f,
+z=0,r=d;for(var g;(g=x(u,c))&&null!==g;){var n=g.index,k=z+n;let q=g.length;var t=void 0;t=0<k?" "===f[k-1]:y(d);k=k+q<E?" "===f[k+q]:A(d);if(t&&k){var l=void 0;0===n?[l,r]=r.splitText(q):[,l,r]=r.splitText(n,n+q);t=d.__format;k=h.$createAutoLinkNode(g.url);k.append(v.$createTextNode(g.text).setFormat(t));l.replace(k);b&&b(g.url,null)}n+=q;u=u.substring(n);z+=n}}l=d.getPreviousSibling();g=d.getNextSibling();d=d.getTextContent();h.$isAutoLinkNode(l)&&!d.startsWith(" ")&&(C(l),l=l.getURL(),b&&b(null,
+l));h.$isAutoLinkNode(g)&&!d.endsWith(" ")&&(C(g),d=g.getURL(),b&&b(null,d))}}),a.registerNodeTransform(h.AutoLinkNode,d=>{B(d,c,e)}))},[a,c,b])}exports.AutoLinkPlugin=function({matchers:a,onChange:c}){let [b]=m.useLexicalComposerContext();D(b,a,c);return null}

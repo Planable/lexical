@@ -1,5 +1,5 @@
 {
-  "name": "@lexical/react",
+  "name": "@planable/lexical-react",
   "description": "This package provides Lexical components and hooks for React applications.",
   "keywords": [
     "react",
@@ -8,7 +8,7 @@
     "rich-text"
   ],
   "license": "MIT",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "dependencies": {
     "@lexical/clipboard": "0.4.1",
     "@lexical/code": "0.4.1",
