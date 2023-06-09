@@ -6,10 +6,10 @@
  *
  */
 
-import type {LexicalEditor} from './LexicalEditor';
-import type {NodeKey} from './LexicalNode';
-import type {ElementNode} from './nodes/LexicalElementNode';
-import type {TextNode} from './nodes/LexicalTextNode';
+import type { LexicalEditor } from './LexicalEditor';
+import type { NodeKey } from './LexicalNode';
+import type { ElementNode } from './nodes/LexicalElementNode';
+import type { TextNode } from './nodes/LexicalTextNode';
 
 import {
   CAN_USE_BEFORE_INPUT,
@@ -64,7 +64,7 @@ import {
   SELECTION_CHANGE_COMMAND,
   UNDO_COMMAND,
 } from '.';
-import {KEY_MODIFIER_COMMAND} from './LexicalCommands';
+import { KEY_MODIFIER_COMMAND } from './LexicalCommands';
 import {
   COMPOSITION_START_CHAR,
   DOM_ELEMENT_TYPE,
@@ -72,8 +72,8 @@ import {
   DOUBLE_LINE_BREAK,
   IS_ALL_FORMATTING,
 } from './LexicalConstants';
-import {internalCreateRangeSelection, RangeSelection} from './LexicalSelection';
-import {getActiveEditor, updateEditor} from './LexicalUpdates';
+import { internalCreateRangeSelection, RangeSelection } from './LexicalSelection';
+import { getActiveEditor, updateEditor } from './LexicalUpdates';
 import {
   $flushMutations,
   $getNodeByKey,
@@ -199,7 +199,36 @@ function $shouldPreventDefaultAndInsertText(
   const backingAnchorElement = editor.getElementByKey(anchorKey);
   const textLength = text.length;
 
-  return (
+  console.log('shouldPreventDefaultAndInsertText', {
+    selection,
+    domTargetRange,
+    text,
+    timeStamp,
+    isBeforeInput,
+    anchor,
+    focus,
+    anchorNode,
+    editor,
+    domSelection,
+    domAnchorNode,
+    anchorKey,
+    backingAnchorElement,
+    textLength,
+  });
+
+  console.log(
+    'CAN_USE_BEFORE_INPUT ',
+    !CAN_USE_BEFORE_INPUT,
+    lastBeforeInputInsertTextTimeStamp,
+    timeStamp,
+    // We check to see if there has been
+    // a recent beforeinput event for "textInput". If there has been one in the last
+    // 50ms then we proceed as normal. However, if there is not, then this is likely
+    // a dangling `input` event caused by execCommand('insertText').
+    lastBeforeInputInsertTextTimeStamp < timeStamp + 50,
+  );
+
+  const result =
     anchorKey !== focus.key ||
     // If we're working with a non-text node.
     !$isTextNode(anchorNode) ||
@@ -237,8 +266,13 @@ function $shouldPreventDefaultAndInsertText(
     anchorNode.getFormat() !== selection.format ||
     anchorNode.getStyle() !== selection.style ||
     // One last set of heuristics to check against.
-    $shouldInsertTextAfterOrBeforeTextNode(selection, anchorNode)
-  );
+    $shouldInsertTextAfterOrBeforeTextNode(selection, anchorNode);
+
+  console.log('parent', anchorNode.getParent());
+  // console.log($shouldInsertTextAfterOrBeforeTextNode(selection, anchorNode));
+
+  console.log('shouldPreventDefaultAndInsertText result', result);
+  return result;
 }
 
 function shouldSkipSelectionChange(
@@ -777,9 +811,9 @@ function onInput(event: InputEvent, editor: LexicalEditor): void {
         !$isTextNode(anchorNode) ||
         domSelection.anchorNode === null ||
         anchorNode.getTextContent().slice(0, offset) +
-          data +
-          anchorNode.getTextContent().slice(offset + selection.focus.offset) !==
-          getAnchorTextFromDOM(domSelection.anchorNode)
+        data +
+        anchorNode.getTextContent().slice(offset + selection.focus.offset) !==
+        getAnchorTextFromDOM(domSelection.anchorNode)
       ) {
         dispatchCommand(editor, CONTROLLED_TEXT_INSERTION_COMMAND, data);
       }
@@ -931,7 +965,7 @@ function onKeyDown(event: KeyboardEvent, editor: LexicalEditor): void {
     return;
   }
 
-  const {keyCode, shiftKey, ctrlKey, metaKey, altKey} = event;
+  const { keyCode, shiftKey, ctrlKey, metaKey, altKey } = event;
 
   if (dispatchCommand(editor, KEY_DOWN_COMMAND, event)) {
     return;
@@ -1055,8 +1089,8 @@ function onDocumentSelectionChange(event: Event): void {
     target == null
       ? null
       : target.nodeType === 9
-      ? (target as Document).defaultView
-      : (target as Element).ownerDocument.defaultView;
+        ? (target as Document).defaultView
+        : (target as Element).ownerDocument.defaultView;
   const domSelection = getDOMSelection(targetWindow);
   if (domSelection === null) {
     return;
@@ -1150,87 +1184,87 @@ export function addRootElementEvents(
     const eventHandler =
       typeof onEvent === 'function'
         ? (event: Event) => {
-            if (hasStoppedLexicalPropagation(event)) {
-              return;
-            }
-            stopLexicalPropagation(event);
-            if (editor.isEditable()) {
-              onEvent(event, editor);
+          if (hasStoppedLexicalPropagation(event)) {
+            return;
+          }
+          stopLexicalPropagation(event);
+          if (editor.isEditable()) {
+            onEvent(event, editor);
+          }
+        }
+        : (event: Event) => {
+          if (hasStoppedLexicalPropagation(event)) {
+            return;
+          }
+          stopLexicalPropagation(event);
+          if (editor.isEditable()) {
+            switch (eventName) {
+              case 'cut':
+                return dispatchCommand(
+                  editor,
+                  CUT_COMMAND,
+                  event as ClipboardEvent,
+                );
+
+              case 'copy':
+                return dispatchCommand(
+                  editor,
+                  COPY_COMMAND,
+                  event as ClipboardEvent,
+                );
+
+              case 'paste':
+                return dispatchCommand(
+                  editor,
+                  PASTE_COMMAND,
+                  event as ClipboardEvent,
+                );
+
+              case 'dragstart':
+                return dispatchCommand(
+                  editor,
+                  DRAGSTART_COMMAND,
+                  event as DragEvent,
+                );
+
+              case 'dragover':
+                return dispatchCommand(
+                  editor,
+                  DRAGOVER_COMMAND,
+                  event as DragEvent,
+                );
+
+              case 'dragend':
+                return dispatchCommand(
+                  editor,
+                  DRAGEND_COMMAND,
+                  event as DragEvent,
+                );
+
+              case 'focus':
+                return dispatchCommand(
+                  editor,
+                  FOCUS_COMMAND,
+                  event as FocusEvent,
+                );
+
+              case 'blur': {
+                return dispatchCommand(
+                  editor,
+                  BLUR_COMMAND,
+                  event as FocusEvent,
+                );
+              }
+
+              case 'drop':
+                return dispatchCommand(
+                  editor,
+                  DROP_COMMAND,
+                  event as DragEvent,
+                );
             }
           }
-        : (event: Event) => {
-            if (hasStoppedLexicalPropagation(event)) {
-              return;
-            }
-            stopLexicalPropagation(event);
-            if (editor.isEditable()) {
-              switch (eventName) {
-                case 'cut':
-                  return dispatchCommand(
-                    editor,
-                    CUT_COMMAND,
-                    event as ClipboardEvent,
-                  );
-
-                case 'copy':
-                  return dispatchCommand(
-                    editor,
-                    COPY_COMMAND,
-                    event as ClipboardEvent,
-                  );
-
-                case 'paste':
-                  return dispatchCommand(
-                    editor,
-                    PASTE_COMMAND,
-                    event as ClipboardEvent,
-                  );
-
-                case 'dragstart':
-                  return dispatchCommand(
-                    editor,
-                    DRAGSTART_COMMAND,
-                    event as DragEvent,
-                  );
-
-                case 'dragover':
-                  return dispatchCommand(
-                    editor,
-                    DRAGOVER_COMMAND,
-                    event as DragEvent,
-                  );
-
-                case 'dragend':
-                  return dispatchCommand(
-                    editor,
-                    DRAGEND_COMMAND,
-                    event as DragEvent,
-                  );
-
-                case 'focus':
-                  return dispatchCommand(
-                    editor,
-                    FOCUS_COMMAND,
-                    event as FocusEvent,
-                  );
-
-                case 'blur': {
-                  return dispatchCommand(
-                    editor,
-                    BLUR_COMMAND,
-                    event as FocusEvent,
-                  );
-                }
-
-                case 'drop':
-                  return dispatchCommand(
-                    editor,
-                    DROP_COMMAND,
-                    event as DragEvent,
-                  );
-              }
-            }
-          };
+        };
     rootElement.addEventListener(eventName, eventHandler);
     removeHandles.push(() => {
       rootElement.removeEventListener(eventName, eventHandler);

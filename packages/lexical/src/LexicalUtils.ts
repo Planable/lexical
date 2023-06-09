@@ -18,19 +18,19 @@ import type {
   RegisteredNode,
   RegisteredNodes,
 } from './LexicalEditor';
-import type {EditorState} from './LexicalEditorState';
-import type {LexicalNode, NodeKey, NodeMap} from './LexicalNode';
+import type { EditorState } from './LexicalEditorState';
+import type { LexicalNode, NodeKey, NodeMap } from './LexicalNode';
 import type {
   GridSelection,
   NodeSelection,
   PointType,
   RangeSelection,
 } from './LexicalSelection';
-import type {RootNode} from './nodes/LexicalRootNode';
-import type {TextFormatType, TextNode} from './nodes/LexicalTextNode';
+import type { RootNode } from './nodes/LexicalRootNode';
+import type { TextFormatType, TextNode } from './nodes/LexicalTextNode';
 
-import {CAN_USE_DOM} from 'shared/canUseDOM';
-import {IS_APPLE, IS_APPLE_WEBKIT, IS_IOS, IS_SAFARI} from 'shared/environment';
+import { CAN_USE_DOM } from 'shared/canUseDOM';
+import { IS_APPLE, IS_APPLE_WEBKIT, IS_IOS, IS_SAFARI } from 'shared/environment';
 import invariant from 'shared/invariant';
 
 import {
@@ -55,8 +55,8 @@ import {
   RTL_REGEX,
   TEXT_TYPE_TO_FORMAT,
 } from './LexicalConstants';
-import {LexicalEditor} from './LexicalEditor';
-import {flushRootMutations} from './LexicalMutations';
+import { LexicalEditor } from './LexicalEditor';
+import { flushRootMutations } from './LexicalMutations';
 import {
   errorOnInfiniteTransforms,
   errorOnReadOnly,
@@ -98,9 +98,9 @@ export const scheduleMicroTask: (fn: () => void) => void =
   typeof queueMicrotask === 'function'
     ? queueMicrotask
     : (fn) => {
-        // No window prefix intended (#1400)
-        Promise.resolve().then(fn);
-      };
+      // No window prefix intended (#1400)
+      Promise.resolve().then(fn);
+    };
 
 export function $isSelectionCapturedInDecorator(node: Node): boolean {
   return $isDecoratorNode($getNearestNodeFromDOMNode(node));
@@ -450,8 +450,8 @@ export function markAllNodesAsDirty(editor: LexicalEditor, type: string): void {
     },
     editor._pendingEditorState === null
       ? {
-          tag: 'history-merge',
-        }
+        tag: 'history-merge',
+      }
       : undefined,
   );
 }
@@ -568,7 +568,7 @@ export function $updateSelectedTextFromDOM(
     return;
   }
   const anchorNode = domSelection.anchorNode;
-  let {anchorOffset, focusOffset} = domSelection;
+  let { anchorOffset, focusOffset } = domSelection;
   if (anchorNode !== null) {
     let textContent = getAnchorTextFromDOM(anchorNode);
     const node = $getNearestNodeFromDOMNode(anchorNode);
@@ -717,6 +717,11 @@ export function $shouldInsertTextAfterOrBeforeTextNode(
       $previousSiblingDoesNotAcceptText(node)
     );
   } else if (offset === node.getTextContentSize()) {
+    console.log(
+      !node.canInsertTextAfter(),
+      !parent.canInsertTextAfter(),
+      isToken,
+    );
     return (
       !node.canInsertTextAfter() || !parent.canInsertTextAfter() || isToken
     );
@@ -1196,7 +1201,7 @@ export function scrollIntoViewIfNeeded(
   if (defaultView === null) {
     return;
   }
-  let {top: currentTop, bottom: currentBottom} = selectionRect;
+  let { top: currentTop, bottom: currentBottom } = selectionRect;
   let targetTop = 0;
   let targetBottom = 0;
   let element: HTMLElement | null = rootElement;
@@ -1260,7 +1265,7 @@ export function $maybeMoveChildrenSelectionToParent(
   if (!$isRangeSelection(selection) || !$isElementNode(parentNode)) {
     return selection;
   }
-  const {anchor, focus} = selection;
+  const { anchor, focus } = selection;
   const anchorNode = anchor.getNode();
   const focusNode = focus.getNode();
   if ($hasAncestor(anchorNode, parentNode)) {
